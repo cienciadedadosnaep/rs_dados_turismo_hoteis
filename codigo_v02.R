@@ -7,7 +7,6 @@ library(magrittr)
 library(readr)
 library(rjson)
 library(RJSONIO)
-library(jsonlite)
 
 # # Library para importar dados SQL
 # library(DBI)
@@ -45,55 +44,18 @@ library(jsonlite)
 # #dbClearResult(rs)
 
 library(readxl)
-dados_hoteis_ssa <- read_excel("data/dados_hoteis_ssa.xlsx")
-View(dados_hoteis_ssa)
+dados_hoteis_ssa3 <- read_excel("data/dados_hoteis_ssa.xlsx")
+View(dados_hoteis_ssa3)
 
-# Selecao de parte do banco que responde as perguntas da planilha de povoamento
+names(dados_hoteis_ssa3) <- c("ano","Diária média anual","Taxa de ocupação","RevPAR")
 
+dados3 <- dados_hoteis_ssa3 %>% select(ano,`RevPAR`) %>% arrange(ano)
 
 ##  Perguntas e titulos 
 T_ST_P_No_Turismo <- read_csv("data/TEMA_SUBTEMA_P_No - TURISMO.csv")
-
-# Lembrar de substituir nomes de 
-#names(dados) = c("ano","q1","q2","q3","q41","q42",
-#                 "q43","q44","q45","q46","q47","q48")
-
-names(dados_hoteis_ssa) <- c("ano","Diária média anual","Taxa de ocupação","RevPAR")
-
-
-
-#dados %<>% gather(key = classe,
-#                  value = consumo,-ano) 
-dados_revpar <- dados_hoteis_ssa %>% select(ano,`RevPAR`) %>% arrange(ano)
-dados_revpar_t <- t(dados_revpar)
-
-dados_revpar_tn <- data.frame(as.character(row.names(dados_revpar_t)),dados_revpar_t)
-
-row.names(dados_revpar_tn) <- NULL
-
-dados_revpar_t_anos <- dados_revpar_tn[1,]
-names(dados_revpar_t_anos) <- NULL 
-dados_revpar_t_anos <- as.character(dados_revpar_t_anos)
-
-dados_revpar_tl <-  dados_revpar_tn[-c(1),]
-
-teste_revpar <- list(dados_revpar_t_anos,dados_revpar_tl)
-
-testejson_revpar <- jsonlite::toJSON(teste_revpar,dataframe = "values") 
-
-teste2_revpar <- gsub('\\[\\[','[',testejson_revpar)
-teste3_revpar <- gsub('\\]\\]\\]',']',teste2_revpar)
-teste3_revpar
-
-data_serie <- teste3_revpar
-
-#data_serie <- paste('[',teste3,']',sep = '')
-#data_serie_mod <- gsub('\\\"','"',data_serie)
-
-#dados_adulto <- dados %>% filter(classe %in% c('q43','q44','q45','q46'))
-#dados_idoso <- dados %>% filter(classe %in% c('q47','q48'))
+dados3 %<>% gather(key = classe,
+                   value = media_anual_revpar,-ano) 
 #dados %<>% select(-id)
-
 # Temas Subtemas Perguntas
 
 
@@ -104,8 +66,8 @@ SAIDA_POVOAMENTO <- T_ST_P_No_Turismo %>%
   select(TEMA,SUBTEMA,PERGUNTA,NOME_ARQUIVO_JS)
 SAIDA_POVOAMENTO <- as.data.frame(SAIDA_POVOAMENTO)
 
-#classes <- NULL
-#classes <- levels(as.factor(dados_ca$classe))
+classes <- NULL
+classes <- levels(as.factor(dados3$classe))
 
 # Cores secundarias paleta pantone -
 corsec_recossa_azul <- c('#175676','#62acd1','#8bc6d2','#20cfef',
@@ -113,47 +75,45 @@ corsec_recossa_azul <- c('#175676','#62acd1','#8bc6d2','#20cfef',
                          '#175676','#62acd1','#8bc6d2','#20cfef')
 
 #for ( i in 1:length(classes)) {
-dados_hoteis_ssa <- NULL
-dados_hoteis_ssa <- data_serie
 
+objeto_0 <- dados3 %>%
+  filter(classe %in% c(classes[1])) %>%
+  select(ano,media_anual_revpar) %>% #filter(ano<2019) %>%
+  #arrange(trimestre) %>%
+  mutate(ano = as.character(ano)) %>% list()               
 
-#  objeto_0 <- dados %>% list()
-#    filter(classe %in% c(classes[i])) %>%
-#    select(ano,consumo) %>% filter(ano<2019) %>%
-#    arrange(ano) %>%
-#    mutate(ano = as.character(ano)) %>% list()               
-
-exportJson0 <- toJSON(teste3_revpar)
+exportJson0 <- toJSON(objeto_0)
 
 
 titulo<-T_ST_P_No_Turismo$TITULO[3]
-subtexto<-"Painel de Hoteis"
+subtexto<-"ABIH-BA"
 link <- T_ST_P_No_Turismo$LINK[3]
 
-
-texto <- paste('{"title":{"text":"',titulo,
-               '","subtext":"',subtexto,
-               '","sublink":"',link,
-               '"},"legend":{"show":true,"top":"bottom"},"tooltip":{},"dataset":{"source":[',data_serie,
-               ']},"xAxis":[{"type":"category","gridIndex":0}],',
-               '"yAxis":[{"type":"value","axisLabel":{"formatter":"R$ {value}"}}],',
-               '"series":[{"type":"bar",','"seriesLayoutBy":"row","color":"',corsec_recossa_azul[5],
-               '","showBackground":false,"backgroundStyle":{"color":"rgba(180, 180, 180, 0)}"},',
-               '"itemStyle":{"borderRadius":10,"borderColor":"',corsec_recossa_azul[5],
-               '","borderWidth":2}},',
-               ']','}',sep="")
-
-## OBS - Incluir 
-## Se for necessario coloca mais colunas além das 2 do default, e escolher 
-## uma cor pelo vetor corsec_recossa_azul[i],
-
-#{"type":"bar",','"seriesLayoutBy":"row","color":"',corsec_recossa_azul[3],
-#               '","showBackground":true,"backgroundStyle":{"color":"rgba(180, 180, 180, 0)}"},',
-#               '"itemStyle":{"borderRadius":10,"borderColor":"',corsec_recossa_azul[3],
-#               '","borderWidth":2}},',
+data_axis <- paste('["',gsub(' ','","',
+                             paste(paste(as.vector(objeto_0[[1]]$ano)),
+                                   collapse = ' ')),'"]',sep = '')
 
 
-#  SAIDA_POVOAMENTO$CODIGO[i] <- texto   
+data_serie <- paste('[',gsub(' ',',',
+                             paste(paste(as.vector(objeto_0[[1]]$media_anual_revpar)),
+                                   collapse = ' ')),']',sep = '')
+
+texto<-paste('{"title":{"text":"',titulo,
+             '","subtext":"',subtexto,
+             '","sublink":"',link,'"},',
+             '"tooltip":{"trigger":"axis"},',
+             '"toolbox":{"left":"center","orient":"horizontal","itemSize":20,"top":45,"show":true,',
+             '"feature":{"dataZoom":{"yAxisIndex":"none"},',
+             '"dataView":{"readOnly":false},',
+             '"restore":{},"saveAsImage":{}}},"xAxis":{"type":"category",',
+             '"data":',data_axis,'},',
+             '"yAxis":{"type":"value","axisLabel":{"formatter":"R$ {value}"}},',
+             '"series":[{"data":',data_serie,',',
+             '"type":"line","color":"',corsec_recossa_azul[5],'","showBackground":true,',
+             '"backgroundStyle":{"color":"rgba(180, 180, 180, 0.2)"},',
+             '"itemStyle":{"borderRadius":10,"borderColor":"',corsec_recossa_azul[5],'","borderWidth":2}}]}',sep='')
+
+#SAIDA_POVOAMENTO$CODIGO[i] <- texto   
 texto<-noquote(texto)
 
 
@@ -168,6 +128,7 @@ write(texto,file = paste('data/',T_ST_P_No_Turismo$NOME_ARQUIVO_JS[3],
 
 write_csv2(SAIDA_POVOAMENTO,file ='data/POVOAMENTO.csv',quote='all',escape='none')
 #quote="needed")#,escape='none')
+
 
 objeto_autm <- SAIDA_POVOAMENTO %>% list()
 exportJson_aut <- toJSON(objeto_autm)
