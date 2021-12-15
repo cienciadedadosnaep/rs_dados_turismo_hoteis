@@ -7,7 +7,6 @@ library(magrittr)
 library(readr)
 library(rjson)
 library(RJSONIO)
-library(jsonlite)
 
 # # Library para importar dados SQL
 # library(DBI)
@@ -48,52 +47,15 @@ library(readxl)
 dados_hoteis_ssa <- read_excel("data/dados_hoteis_ssa.xlsx")
 View(dados_hoteis_ssa)
 
-# Selecao de parte do banco que responde as perguntas da planilha de povoamento
+names(dados_hoteis_ssa) <- c("ano","Diária média anual","Taxa de ocupação","RevPAR")
 
+dados <- dados_hoteis_ssa %>% select(ano,`Diária média anual`) %>% arrange(ano)
 
 ##  Perguntas e titulos 
 T_ST_P_No_Turismo <- read_csv("data/TEMA_SUBTEMA_P_No - TURISMO.csv")
-
-# Lembrar de substituir nomes de 
-#names(dados) = c("ano","q1","q2","q3","q41","q42",
-#                 "q43","q44","q45","q46","q47","q48")
-
-names(dados_hoteis_ssa) <- c("ano","Diária média anual","Taxa de ocupação","RevPAR")
-
-
-
-#dados %<>% gather(key = classe,
-#                  value = consumo,-ano) 
-dados_hot <- dados_hoteis_ssa %>% select(ano,`Diária média anual`) %>% arrange(ano)
-dados_hot_t <- t(dados_hot)
-
-dados_hot_tn <- data.frame(as.character(row.names(dados_hot_t)),dados_hot_t)
-
-row.names(dados_hot_tn) <- NULL
-
-dados_hot_t_anos <- dados_hot_tn[1,]
-names(dados_hot_t_anos) <- NULL 
-dados_hot_t_anos <- as.character(dados_hot_t_anos)
-
-dados_hot_tl <-  dados_hot_tn[-c(1),]
-
-teste_hot <- list(dados_hot_t_anos,dados_hot_tl)
-
-testejson_hot <- jsonlite::toJSON(teste_hot,dataframe = "values") 
-
-teste2_hot <- gsub('\\[\\[','[',testejson_hot)
-teste3_hot <- gsub('\\]\\]\\]',']',teste2_hot)
-teste3_hot
-
-data_serie <- teste3_hot
-
-#data_serie <- paste('[',teste3,']',sep = '')
-#data_serie_mod <- gsub('\\\"','"',data_serie)
-
-#dados_adulto <- dados %>% filter(classe %in% c('q43','q44','q45','q46'))
-#dados_idoso <- dados %>% filter(classe %in% c('q47','q48'))
+dados %<>% gather(key = classe,
+                  value = media_anual_diaria,-ano) 
 #dados %<>% select(-id)
-
 # Temas Subtemas Perguntas
 
 
@@ -104,8 +66,8 @@ SAIDA_POVOAMENTO <- T_ST_P_No_Turismo %>%
   select(TEMA,SUBTEMA,PERGUNTA,NOME_ARQUIVO_JS)
 SAIDA_POVOAMENTO <- as.data.frame(SAIDA_POVOAMENTO)
 
-#classes <- NULL
-#classes <- levels(as.factor(dados_ca$classe))
+classes <- NULL
+classes <- levels(as.factor(dados$classe))
 
 # Cores secundarias paleta pantone -
 corsec_recossa_azul <- c('#175676','#62acd1','#8bc6d2','#20cfef',
@@ -113,47 +75,45 @@ corsec_recossa_azul <- c('#175676','#62acd1','#8bc6d2','#20cfef',
                          '#175676','#62acd1','#8bc6d2','#20cfef')
 
 #for ( i in 1:length(classes)) {
-dados_hoteis_ssa <- NULL
-dados_hoteis_ssa <- data_serie
 
+objeto_0 <- dados %>%
+  filter(classe %in% c(classes[1])) %>%
+  select(ano,media_anual_diaria) %>% #filter(ano<2019) %>%
+  #arrange(trimestre) %>%
+  mutate(ano = as.character(ano)) %>% list()               
 
-#  objeto_0 <- dados %>% list()
-#    filter(classe %in% c(classes[i])) %>%
-#    select(ano,consumo) %>% filter(ano<2019) %>%
-#    arrange(ano) %>%
-#    mutate(ano = as.character(ano)) %>% list()               
-
-exportJson0 <- toJSON(teste3_hot)
+exportJson0 <- toJSON(objeto_0)
 
 
 titulo<-T_ST_P_No_Turismo$TITULO[1]
-subtexto<-"Painel de Hoteis"
+subtexto<-"ABIH-BA"
 link <- T_ST_P_No_Turismo$LINK[1]
 
-
-texto <- paste('{"title":{"text":"',titulo,
-               '","subtext":"',subtexto,
-               '","sublink":"',link,
-               '"},"legend":{"show":true,"top":"bottom"},"tooltip":{},"dataset":{"source":[',data_serie,
-               ']},"xAxis":[{"type":"category","gridIndex":0}],',
-               '"yAxis":[{"type":"value","axisLabel":{"formatter":"R$ {value}"}}],',
-               '"series":[{"type":"bar",','"seriesLayoutBy":"row","color":"',corsec_recossa_azul[5],
-               '","showBackground":false,"backgroundStyle":{"color":"rgba(180, 180, 180, 0)}"},',
-               '"itemStyle":{"borderRadius":10,"borderColor":"',corsec_recossa_azul[5],
-               '","borderWidth":2}},',
-               ']','}',sep="")
-
-## OBS - Incluir 
-## Se for necessario coloca mais colunas além das 2 do default, e escolher 
-## uma cor pelo vetor corsec_recossa_azul[i],
-
-#{"type":"bar",','"seriesLayoutBy":"row","color":"',corsec_recossa_azul[3],
-#               '","showBackground":true,"backgroundStyle":{"color":"rgba(180, 180, 180, 0)}"},',
-#               '"itemStyle":{"borderRadius":10,"borderColor":"',corsec_recossa_azul[3],
-#               '","borderWidth":2}},',
+data_axis <- paste('["',gsub(' ','","',
+                             paste(paste(as.vector(objeto_0[[1]]$ano)),
+                                   collapse = ' ')),'"]',sep = '')
 
 
-#  SAIDA_POVOAMENTO$CODIGO[i] <- texto   
+data_serie <- paste('[',gsub(' ',',',
+                             paste(paste(as.vector(objeto_0[[1]]$media_anual_diaria)),
+                                   collapse = ' ')),']',sep = '')
+
+texto<-paste('{"title":{"text":"',titulo,
+             '","subtext":"',subtexto,
+             '","sublink":"',link,'"},',
+             '"tooltip":{"trigger":"axis"},',
+             '"toolbox":{"left":"center","orient":"horizontal","itemSize":20,"top":45,"show":true,',
+             '"feature":{"dataZoom":{"yAxisIndex":"none"},',
+             '"dataView":{"readOnly":false},',
+             '"restore":{},"saveAsImage":{}}},"xAxis":{"type":"category",',
+             '"data":',data_axis,'},',
+             '"yAxis":{"type":"value","axisLabel":{"formatter":"R$ {value}"}},',
+             '"series":[{"data":',data_serie,',',
+             '"type":"line","color":"',corsec_recossa_azul[5],'","showBackground":true,',
+             '"backgroundStyle":{"color":"rgba(180, 180, 180, 0.2)"},',
+             '"itemStyle":{"borderRadius":10,"borderColor":"',corsec_recossa_azul[5],'","borderWidth":2}}]}',sep='')
+
+#SAIDA_POVOAMENTO$CODIGO[i] <- texto   
 texto<-noquote(texto)
 
 
@@ -168,6 +128,7 @@ write(texto,file = paste('data/',T_ST_P_No_Turismo$NOME_ARQUIVO_JS[1],
 
 write_csv2(SAIDA_POVOAMENTO,file ='data/POVOAMENTO.csv',quote='all',escape='none')
 #quote="needed")#,escape='none')
+
 
 objeto_autm <- SAIDA_POVOAMENTO %>% list()
 exportJson_aut <- toJSON(objeto_autm)
