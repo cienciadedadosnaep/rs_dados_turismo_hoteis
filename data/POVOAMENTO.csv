@@ -1,4 +1,17 @@
 "TEMA";"SUBTEMA";"PERGUNTA";"NOME_ARQUIVO_JS"
-"Turismo";"Hotéis";"Qual é a diária média dos hotéis em Salvador?";"qt4.csv"
-"Turismo";"Hotéis";"Qual é a porcentagem média de ocupação nos hotéis de Salvador?";"qt5.cvs"
-"Turismo";"Hotéis";"Qual é a média mensal do lucro por quarto de hotel (RevPAR) dos hotéis de Salvador?";"qt6.cvs"
+"Turismo";"Voos";"Qual é a quantidade de embarques e desembarques de voos dométiscos em Salvador?";"qt1.csv"
+"Turismo";"Voos";"Qual é a quantidade de embarques e desembarques de voos internacionais em Salvador?";"qt2.csv"
+"Turismo";"Voos";"Qual é a quantidade total de embarques e desembarques de voos em Salvador?";"qt3.csv"
+NA;NA;NA;NA
+"Turismo";"Hospedagem";"Qual é o valor médio da diária dos hotéis em Salvador?";"qt4.csv"
+"Turismo";"Hospedagem";"Qual é a porcentagem média de ocupação nos hotéis de Salvador?";"qt5.cvs"
+"Turismo";"Hospedagem";"Qual é a média mensal do lucro por quarto de hotel (RevPAR) dos hotéis de Salvador?";"qt6.cvs"
+NA;NA;NA;NA
+"Turismo";"Ocupação Formal";"Qual é a quantidade de empregados com carteira assinada no setor de turismo por ano em Salvador?";"qt1.csv"
+"Turismo";"Ocupação Formal";"Qual é a quantidade de empregados com carteira assinada no setor de turismo por atividade em Salvador?";"qt2.csv"
+"Turismo";"Ocupação Formal";"Qual é a remuneração média no setor de turismo em Salvador por ano?";"qt3.csv"
+"Turismo";"Ocupação Formal";"Qual é a remuneração média no setor de turismo em Salvador por atividade?";"qt4.csv"
+NA;NA;NA;NA
+"Turismo";"Transportes Turísticos";"Qual é o número de pessoas beneficiadas pelo Elevador Lacerda em Salvador?";"qt1.csv"
+"Turismo";"Transportes Turísticos";"Qual é o número de pessoas beneficiadas pelo cruzeiro marítimo em Salvador?";"qt2.csv"
+"Turismo";"Transportes Turísticos";"Qual é o número total de pessoas beneficiadas pelo elevador lacerda e o cruzeiro marítimo em Salvador?";"qt3.csv"
