@@ -45,7 +45,7 @@ library(RJSONIO)
 
 library(readxl)
 dados_hoteis_ssa <- read_excel("data/dados_hoteis_ssa.xlsx")
-View(dados_hoteis_ssa)
+#View(dados_hoteis_ssa)
 
 names(dados_hoteis_ssa) <- c("ano","Diária média anual","Taxa de ocupação","RevPAR")
 
@@ -102,7 +102,7 @@ texto<-paste('{"title":{"text":"',titulo,
              '","subtext":"',subtexto,
              '","sublink":"',link,'"},',
              '"tooltip":{"trigger":"axis"},',
-             '"toolbox":{"left":"center","orient":"horizontal","itemSize":20,"top":45,"show":true,',
+             '"toolbox":{"left":"center","orient":"horizontal","itemSize":20,"top":20,"show":true,',
              '"feature":{"dataZoom":{"yAxisIndex":"none"},',
              '"dataView":{"readOnly":false},',
              '"restore":{},"saveAsImage":{}}},"xAxis":{"type":"category",',
