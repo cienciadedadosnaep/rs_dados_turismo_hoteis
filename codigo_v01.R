@@ -45,11 +45,12 @@ library(RJSONIO)
 
 library(readxl)
 dados_hoteis_ssa2 <- read_excel("data/dados_hoteis_ssa.xlsx")
-View(dados_hoteis_ssa2)
+#View(dados_hoteis_ssa2)
 
 names(dados_hoteis_ssa2) <- c("ano","Diária média anual","Taxa de ocupação","RevPAR")
 
 dados2 <- dados_hoteis_ssa2 %>% select(ano,`Taxa de ocupação`) %>% arrange(ano)
+dados2 %<>% mutate(`Taxa de ocupação` = round(`Taxa de ocupação`))
 
 ##  Perguntas e titulos 
 T_ST_P_No_Turismo <- read_csv("data/TEMA_SUBTEMA_P_No - TURISMO.csv")
@@ -101,13 +102,13 @@ data_serie <- paste('[',gsub(' ',',',
 texto<-paste('{"title":{"text":"',titulo,
              '","subtext":"',subtexto,
              '","sublink":"',link,'"},',
-             '"tooltip":{"trigger":"axis"},',
+             '"tooltip":{"trigger":"item","responsive":true,"position":"top","formatter":"{c}%"},',
              '"toolbox":{"left":"center","orient":"horizontal","itemSize":20,"top":20,"show":true,',
              '"feature":{"dataZoom":{"yAxisIndex":"none"},',
              '"dataView":{"readOnly":false},',
              '"restore":{},"saveAsImage":{}}},"xAxis":{"type":"category",',
              '"data":',data_axis,'},',
-             '"yAxis":{"type":"value","axisLabel":{"formatter":"{value} %"}},',
+             '"yAxis":{"type":"value","axisLabel":{"formatter":"{value}%"}},',
              '"series":[{"data":',data_serie,',',
              '"type":"line","color":"',corsec_recossa_azul[5],'","showBackground":true,',
              '"backgroundStyle":{"color":"rgba(180, 180, 180, 0.2)"},',
